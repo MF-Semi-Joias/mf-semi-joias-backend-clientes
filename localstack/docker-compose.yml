@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+      - "4571:4571"
+    environment:
+      - SERVICES=dynamodb
+    volumes:
+      - ./create_table.sh:/docker-entrypoint-initaws.d/create_table.sh
