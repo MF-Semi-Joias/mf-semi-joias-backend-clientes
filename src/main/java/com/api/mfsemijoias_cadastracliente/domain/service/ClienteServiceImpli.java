@@ -7,6 +7,8 @@ import com.api.mfsemijoias_cadastracliente.ports.in.ClienteMapper;
 import com.api.mfsemijoias_cadastracliente.ports.in.ClienteService;
 import com.api.mfsemijoias_cadastracliente.ports.in.ClienteValidation;
 import lombok.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +24,8 @@ public class ClienteServiceImpli implements ClienteService {
     private final ClienteMapper clienteMapper;
     private final ClienteValidation clienteValidation;
     private ClienteEntity clienteEntity;
+    private static final Logger logger = LoggerFactory.getLogger(ClienteServiceImpli.class);
+
 
 
     public ClienteServiceImpli(ClienteRepository clienteRepository, ClienteMapper clienteMapper, ClienteValidation clienteValidation) {
@@ -63,13 +67,14 @@ public class ClienteServiceImpli implements ClienteService {
 
     @Override
     public Cliente buscarClientePorUsuario(String usuario) {
+        logger.info("Buscando cliente por usuário: {}", usuario);
         clienteEntity = clienteRepository.findByUser(usuario)
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+                .orElseThrow(() -> {
+                    logger.warn("Cliente não encontrado para o usuário: {}", usuario);
+                    return new RuntimeException("Cliente não encontrado");
+                });
+        logger.info("Cliente encontrado: id={}, usuario={}", clienteEntity.getId(), clienteEntity.getUsuario());
         return clienteMapper.toDomain(clienteEntity);
-
-    }
-    public boolean existeUsuarioCadastrado() {
-        return !clienteRepository.findAll().isEmpty();
     }
 
 }
