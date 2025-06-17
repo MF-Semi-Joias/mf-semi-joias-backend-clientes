@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  localstack:
+    image: localstack/localstack:latest
+    ports:
+      - "4566:4566"
+      - "4571:4571"
+    environment:
+      - SERVICES=dynamodb
+    volumes:
+      - ./create_table.sh:/docker-entrypoint-initaws.d/create_table.sh
+
+  terraform:
+    image: hashicorp/terraform:1.7
+    working_dir: /workspace
+    volumes:
+      - ./:/workspace
+    depends_on:
+      - localstack
+    entrypoint: sh -c "terraform init && terraform apply -auto-approve"
